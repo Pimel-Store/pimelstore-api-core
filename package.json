@@ -1,20 +1,16 @@
 {
   "name": "pimelstore-api-core",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
- "scripts": {
+  "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "build": "tsc"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
+    "@types/express": "^4.17.17",
     "@types/node": "^24.10.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"

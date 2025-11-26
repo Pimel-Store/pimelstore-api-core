@@ -1,13 +1,11 @@
-import express, { Request, Response } from 'express';
+// api/server.ts
+import express from 'express';
+import serverless from 'serverless-http';
 
 const app = express();
 
-app.use(express.json());
-
-app.get('/', (req: Request, res: Response) => {
-  res.send('Servidor funcionando com TypeScript!');
+app.get('/', (req, res) => {
+  res.send('Servidor Express rodando na Vercel!');
 });
 
-app.listen(3000, () => {
-  console.log('🚀 Servidor rodando na porta 3000');
-});
+export default serverless(app);
