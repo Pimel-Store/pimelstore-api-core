@@ -27,7 +27,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const company_id = await generateUUID();
       await companyCollection.insertOne({
         _company_id: company_id,
-        name: "PimelStore"
+        name: "PimelStore",
+        created_at: new Date(),
+        updated_at: new Date()
       } as Company);
     }
 
@@ -47,7 +49,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       name: body.name,
       email: body.email,
       password: hashedPassword,
-      _company_id: company._company_id
+      _company_id: company._company_id,
+      created_at: new Date(),
+      updated_at: new Date()
     } as User);
     
     await apiResponse(res, 200,
