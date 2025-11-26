@@ -1,8 +1,8 @@
-import { User } from '../interfaces/user.ts';
+import { User } from '../interfaces/user';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import apiResponse from '../utils/apiResponse.ts';
-import { getCollection } from '../utils/mongo.ts';
-import { verifyPassword } from '../utils/bcrypt.ts.ts';
+import apiResponse from '../utils/apiResponse';
+import { getCollection } from '../utils/mongo';
+import { verifyPassword } from '../utils/bcrypt';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const body = req.body as User;

@@ -1,11 +1,11 @@
 import { Company } from './../interfaces/company';
-import { User } from '../interfaces/user.ts';
+import { User } from '../interfaces/user';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import apiResponse from '../utils/apiResponse';
 import { getCollection } from '../utils/mongo';
-import { hashPassword } from '../utils/bcrypt.ts';
-import { validatePassword } from '../utils/passwordHelpers.ts';
-import generateUUID from '../utils/uuid.ts';
+import { hashPassword } from '../utils/bcrypt';
+import { validatePassword } from '../utils/passwordHelpers';
+import generateUUID from '../utils/uuid';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const body = req.body as User;
