@@ -22,7 +22,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await apiResponse(res, 200,
       { 
         message: 'User logged in successfully',
-        data: { name: user.name, email: user.email, _uuid: user._uuid, _company_id: user._company_id }
+        data: { 
+          ...user
+        }
       }
     );
   } catch (error: any) {
