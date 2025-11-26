@@ -1,4 +1,4 @@
-import { User } from '../interfaces/apiResponse.ts';
+import { User } from '../interfaces/user.ts';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import apiResponse from '../utils/apiResponse.ts';
 import { getCollection } from '../utils/mongo.ts';

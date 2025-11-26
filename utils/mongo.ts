@@ -1,9 +1,12 @@
 import { MongoClient, Db, Collection, Document } from 'mongodb';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 let client: MongoClient;
 let db: Db;
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://pimelstore:pimelstore-mongodb-pass@pimelstore-core.ogh9w3q.mongodb.net/?appName=pimelstore-core";
+const MONGO_URI = process.env.MONGO_URI || '';
 
 if (!MONGO_URI) throw new Error('Defina MONGO_URI');
 

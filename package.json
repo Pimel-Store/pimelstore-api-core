@@ -6,11 +6,13 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
     "mongodb": "^7.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/dotenv": "^6.1.1",
     "@types/mongodb": "^4.0.6",
     "@types/uuid": "^10.0.0",
     "typescript": "^5.9.3",
