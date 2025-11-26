@@ -1,9 +1,16 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/server.ts", "use": "@vercel/node" }
-  ],
+  "functions": {
+    "api/test.ts": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  },
   "routes": [
-    { "src": "/(.*)", "dest": "api/server.ts" }
+    {
+      "src": "/api/test",
+      "dest": "/api/test.ts",
+      "methods": ["POST"]
+    }
   ]
 }
