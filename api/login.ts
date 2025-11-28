@@ -3,6 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import apiResponse from '../utils/apiResponse';
 import { getCollection } from '../utils/mongo';
 import { verifyPassword } from '../utils/bcrypt';
+import { generateToken } from '../utils/jwt';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const body = req.body as User;
@@ -18,12 +19,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const isPasswordValid = await verifyPassword(body.password, user.password);
     if (!isPasswordValid) {return await apiResponse(res, 400, { message: 'Invalid password' });}
+
+    const dataAboutUser = { 
+      _uuid: user._uuid,
+      _company_id: user._company_id,
+      name: user.name,
+      email: user.email
+     }
+
+    const token = generateToken(dataAboutUser);
     
     await apiResponse(res, 200,
       { 
         message: 'User logged in successfully',
         data: { 
-          ...user
+          ...dataAboutUser,
+          token
         }
       }
     );
