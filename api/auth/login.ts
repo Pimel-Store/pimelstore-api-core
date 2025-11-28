@@ -1,23 +1,24 @@
-import { User } from '../interfaces/user';
+import { User } from '../../interfaces/user';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import apiResponse from '../utils/apiResponse';
-import { getCollection } from '../utils/mongo';
-import { verifyPassword } from '../utils/bcrypt';
-import { generateToken } from '../utils/jwt';
+import apiResponse from '../../utils/apiResponse';
+import { getCollection } from '../../utils/mongo';
+import { verifyPassword } from '../../utils/bcrypt';
+import { generateToken } from '../../utils/jwt';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const body = req.body as User;
+  const { email, password } = req.body as User;
+
   try {
-    if(!body.email || !body.password) {
+    if(!email || !password) {
       return await apiResponse(res, 400, { message: 'Missing required fields - email or password' });
     }
 
     const usersCollection = await getCollection<User>('pimelstore', 'users');
 
-    const user: User | null = await usersCollection.findOne({ email: body.email });
+    const user: User | null = await usersCollection.findOne({ email: email });
     if (!user){return await apiResponse(res, 400, { message: 'User does not exist' });}
 
-    const isPasswordValid = await verifyPassword(body.password, user.password);
+    const isPasswordValid = await verifyPassword(password, user.password);
     if (!isPasswordValid) {return await apiResponse(res, 400, { message: 'Invalid password' });}
 
     const dataAboutUser = { 

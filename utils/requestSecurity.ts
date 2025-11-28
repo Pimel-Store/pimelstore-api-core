@@ -1,7 +1,6 @@
 import type { VercelRequest } from '@vercel/node';
 import { verifyToken } from './jwt';
 
-
 export default async function securityRules(request: VercelRequest): Promise<{message: string, valid: boolean, statusCode?: number, data?: any}> {
   try {
     const authHeader = request.headers.authorization;
