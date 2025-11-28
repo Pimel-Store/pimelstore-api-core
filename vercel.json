@@ -3,7 +3,6 @@
   "builds": [
     { "src": "api/auth/*.ts", "use": "@vercel/node" },
     { "src": "api/register/*.ts", "use": "@vercel/node" },
-    { "src": "api/register/*.ts", "use": "@vercel/node" },
     { "src": "api/sales/*.ts", "use": "@vercel/node" },
     { "src": "utils/*.ts", "use": "@vercel/node" }
   ],
