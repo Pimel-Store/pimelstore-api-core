@@ -3,7 +3,8 @@
   "builds": [
     { "src": "api/auth/*.ts", "use": "@vercel/node" },
     { "src": "api/register/*.ts", "use": "@vercel/node" },
-    { "src": "api/sales/*.ts", "use": "@vercel/node" }
+    { "src": "api/sales/*.ts", "use": "@vercel/node" },
+    { "src": "api/viewers/*.ts", "use": "@vercel/node" }
   ],
   "routes": [
     { "src": "/register", "dest": "api/register/register.ts", "methods": ["POST"]},
@@ -14,6 +15,7 @@
     { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/deleteSales.ts", "methods": ["DELETE"]},
     { "src": "/sales", "dest": "api/sales/deleteSales.ts", "methods": ["DELETE"]},
     { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/getSalesById.ts", "methods": ["GET"]},
-    { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/updateSales.ts", "methods": ["PUT"]}
+    { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/updateSales.ts", "methods": ["PUT"]},
+    { "src": "/dashboard", "dest": "api/viewers/dashboard.ts", "methods": ["GET"]}
   ]
 }
