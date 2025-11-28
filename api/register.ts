@@ -1,4 +1,4 @@
-import { Company } from './../interfaces/company';
+import { Company } from '../interfaces/company';
 import { User } from '../interfaces/user';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import apiResponse from '../utils/apiResponse';

@@ -6,7 +6,7 @@
   ],
   "routes": [
     { "src": "/", "dest": "api/home.ts" },
-    { "src": "/register", "dest": "api/registerUser.ts", "methods": ["POST"] },
+    { "src": "/register", "dest": "api/register.ts", "methods": ["POST"] },
     { "src": "/login", "dest": "api/login.ts", "methods": ["POST"] },
     { "src": "/token", "dest": "api/token.ts", "methods": ["GET"] }
   ]
