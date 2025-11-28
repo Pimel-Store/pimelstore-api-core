@@ -3,11 +3,9 @@
   "builds": [
     { "src": "api/auth/*.ts", "use": "@vercel/node" },
     { "src": "api/register/*.ts", "use": "@vercel/node" },
-    { "src": "api/sales/*.ts", "use": "@vercel/node" },
-    { "src": "utils/*.ts", "use": "@vercel/node" }
+    { "src": "api/sales/*.ts", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/", "dest": "api/welcome.ts" },
     { "src": "/register", "dest": "api/register/register.ts", "methods": ["POST"]},
     { "src": "/login", "dest": "api/auth/login.ts", "methods": ["POST"]},
     { "src": "/token", "dest": "api/auth/token.ts", "methods": ["GET"]},
