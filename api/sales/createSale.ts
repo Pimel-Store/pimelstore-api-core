@@ -5,6 +5,7 @@ import { Sale } from '../../interfaces/sale';
 import { getCollection } from '../../utils/mongo';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
 
     const securutyValidation = await securityRules(req);
     if (!securutyValidation.valid) {

@@ -5,6 +5,7 @@ import { getCollection } from '../../utils/mongo';
 import { ObjectId } from 'mongodb';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
 
     const securutyValidation = await securityRules(req);
     if (!securutyValidation.valid) {

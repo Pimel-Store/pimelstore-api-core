@@ -3,6 +3,7 @@ import apiResponse from '../../utils/apiResponse';
 import securityRules from '../../utils/requestSecurity';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
   try {
     const securutyValidation = await securityRules(req);
     if (!securutyValidation.valid) {
