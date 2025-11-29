@@ -8,7 +8,7 @@
   ],
   "routes": [
     { "src": "/register", "dest": "api/register/register.ts", "methods": ["POST"]},
-    { "src": "/login", "dest": "api/auth/login.ts", "methods": ["POST"]},
+    { "src": "/login", "dest": "api/auth/login.ts", "methods": ["POST", "OPTIONS"]},
     { "src": "/token", "dest": "api/auth/token.ts", "methods": ["GET"]},
     { "src": "/sales", "dest": "api/sales/createSale.ts", "methods": ["POST"]},
     { "src": "/sales", "dest": "api/sales/getSales.ts", "methods": ["GET"]},
