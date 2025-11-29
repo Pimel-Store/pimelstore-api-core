@@ -12,7 +12,7 @@ export default async function securityRules(request: VercelRequest): Promise<{me
     const tokenValidation = await verifyToken(token);
     if (!tokenValidation) {return { message: 'Invalid or expired token', valid: false, statusCode: 401 };}
     
-    return { message: 'Token is valid', valid: true, statusCode: 200, data: { token: token, tokenData: tokenValidation } };
+    return { message: 'Token is valid', valid: true, statusCode: 200, data: { ...tokenValidation, token } };
   } catch (error) {
     throw new Error(`Error validating token: ${error}`);
   }
