@@ -6,7 +6,10 @@ import { verifyPassword } from '../../utils/bcrypt';
 import { generateToken } from '../../utils/jwt';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', '*'); 
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
   const { email, password } = req.body as User;
 
   try {
