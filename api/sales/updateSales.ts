@@ -32,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return apiResponse(res, 400, { message: 'Invalid sale ID format' });
     }
 
-    const { product, payment_method, value } = req.body as Sale;
+    const { product, payment_method, value, sold_at } = req.body as Sale;
 
     if (payment_method !== undefined) {
       const paymentMethods = ['credit_card', 'debit_card', 'pix', 'cash', 'other'];
@@ -52,6 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       product: product || sale.product,
       payment_method: payment_method || sale.payment_method,
       value: value !== undefined && value !== null ? value : sale.value,
+      sold_at: sold_at ? new Date(sold_at) : sale.sold_at,
       updated_at: new Date()
     };
 

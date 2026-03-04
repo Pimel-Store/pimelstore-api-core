@@ -21,10 +21,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const companyId = securutyValidation.data._company_id;
     if (!companyId) { return apiResponse(res, 400, { message: 'Company ID is missing in token data' }); }
 
-    const { product, payment_method, value } = req.body as Sale;
+    const { product, payment_method, value, sold_at } = req.body as Sale;
 
-    if (!product || !payment_method || value === undefined || value === null) {
-      return apiResponse(res, 400, { message: 'Missing required fields - product, payment_method, or value' });
+    if (!product || !payment_method || value === undefined || value === null || !sold_at) {
+      return apiResponse(res, 400, { message: 'Missing required fields - product, payment_method, value, or sold_at' });
     }
 
     if (typeof value !== 'number') {
@@ -42,6 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       product: product,
       value: value,
       payment_method: payment_method,
+      sold_at: new Date(sold_at),
       created_at: new Date(),
       updated_at: new Date()
     };
