@@ -4,39 +4,47 @@ import securityRules from '../../utils/requestSecurity';
 import { getCollection } from '../../utils/mongo';
 import { ObjectId } from 'mongodb';
 import { Sale } from '../../interfaces/sale';
+import { setCorsHeaders } from '../../utils/cors';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*'); 
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
+  setCorsHeaders(res);
 
-    const securutyValidation = await securityRules(req);
-    if (!securutyValidation.valid) {
-      return await apiResponse(res, securutyValidation.statusCode || 401, { message: securutyValidation.message });
-    }
-
-    const companyId = securutyValidation.data.tokenData._company_id;
-    if (!companyId) { return await apiResponse(res, 400, { message: 'Company ID is missing in token data' });}
-
-    const match = req.url?.match(/^\/sales\/([^/]+)$/);
-    const id = match?.[1];
-        
-    if (!id || typeof id !== 'string') {
-      return await apiResponse(res, 400, { message: 'Invalid or missing sale ID' });
-    }
-    
-    if (!ObjectId.isValid(id)) {
-      return await apiResponse(res, 400, { message: 'Invalid sale ID format' });
-    }
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
   try {
+    const securutyValidation = await securityRules(req);
+    if (!securutyValidation.valid) {
+      return apiResponse(res, securutyValidation.statusCode || 401, { message: securutyValidation.message });
+    }
+
+    const companyId = securutyValidation.data._company_id;
+    if (!companyId) { return apiResponse(res, 400, { message: 'Company ID is missing in token data' }); }
+
+    const id = req.query.id as string;
+
+    if (!id) {
+      return apiResponse(res, 400, { message: 'Invalid or missing sale ID' });
+    }
+
+    if (!ObjectId.isValid(id)) {
+      return apiResponse(res, 400, { message: 'Invalid sale ID format' });
+    }
+
     const { product, payment_method, value } = req.body as Sale;
 
-    const saleCollection = await getCollection('pimelstore', 'sales');
+    if (payment_method !== undefined) {
+      const paymentMethods = ['credit_card', 'debit_card', 'pix', 'cash', 'other'];
+      if (!paymentMethods.includes(payment_method)) {
+        return apiResponse(res, 400, { message: `Invalid payment_method. Allowed values are: ${paymentMethods.join(', ')}` });
+      }
+    }
+
+    const saleCollection = await getCollection('sales');
     const sale = await saleCollection.findOne({ _company_id: companyId, _id: new ObjectId(id) });
     if (!sale) {
-      return await apiResponse(res, 404, { message: 'Sale not found' });
+      return apiResponse(res, 404, { message: 'Sale not found' });
     }
 
     const updatedSale = {
@@ -52,15 +60,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { $set: updatedSale }
     );
 
-    await apiResponse(res, 200,
-      { 
-        message: 'Sale updated successfully',
-        data: updatedSale
-      }
-    );
+    apiResponse(res, 200, {
+      message: 'Sale updated successfully',
+      data: updatedSale
+    });
   } catch (error: any) {
-     await apiResponse(res, 500, { 
-      message: 'Error updating sale', 
+    apiResponse(res, 500, {
+      message: 'Error updating sale',
       error: error?.message || String(error)
     });
   }

@@ -2,33 +2,36 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import apiResponse from '../../utils/apiResponse';
 import securityRules from '../../utils/requestSecurity';
 import { getCollection } from '../../utils/mongo';
+import { setCorsHeaders } from '../../utils/cors';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*'); 
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  const securutyValidation = await securityRules(req);
-  if (!securutyValidation.valid) {
-    return await apiResponse(res, securutyValidation.statusCode || 401, { message: securutyValidation.message });
-  }
+  setCorsHeaders(res);
 
-  const companyId = securutyValidation.data.tokenData._company_id;
-  if (!companyId) { 
-    return await apiResponse(res, 400, { message: 'Company ID is missing in token data' });
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
   try {
-    const saleCollection = await getCollection('pimelstore', 'sales');
+    const securutyValidation = await securityRules(req);
+    if (!securutyValidation.valid) {
+      return apiResponse(res, securutyValidation.statusCode || 401, { message: securutyValidation.message });
+    }
+
+    const companyId = securutyValidation.data._company_id;
+    if (!companyId) {
+      return apiResponse(res, 400, { message: 'Company ID is missing in token data' });
+    }
+
+    const saleCollection = await getCollection('sales');
     const { year } = req.query;
 
     const now = new Date();
-    const yearNumber = Number(year) || now.getFullYear(); 
+    const yearNumber = Number(year) || now.getFullYear();
     const lastMonth = (yearNumber === now.getFullYear()) ? now.getMonth() + 1 : 12;
 
     // Agrupamento mensal
     const monthlyData = await saleCollection.aggregate([
-      { 
+      {
         $match: {
           _company_id: companyId,
           created_at: {
@@ -47,7 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ]).toArray();
 
     // Monta resultado mensal
-    const monthlyResult: { [month: string]: { totalItems: number, totalValue: number, month:number, year:number } | null } = {};
+    const monthlyResult: { [month: string]: { totalItems: number, totalValue: number, month: number, year: number } | null } = {};
     for (let m = 1; m <= lastMonth; m++) {
       const monthData = monthlyData.find(d => d._id === m);
       monthlyResult[m] = monthData
@@ -57,7 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Agrupamento diário
     const dailyData = await saleCollection.aggregate([
-      { 
+      {
         $match: {
           _company_id: companyId,
           created_at: {
@@ -90,7 +93,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Agrupamento anual (somando todos os valores)
     const annualData = await saleCollection.aggregate([
-      { 
+      {
         $match: {
           _company_id: companyId,
           created_at: {
@@ -109,10 +112,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     ]).toArray();
 
-    const annualResult = annualData[0] || { totalItems: 0, totalValue: 0};
+    const annualResult = annualData[0] || { totalItems: 0, totalValue: 0 };
 
-    // Retorna os três resultados juntos
-    await apiResponse(res, 200, { 
+    apiResponse(res, 200, {
       message: 'Dashboard retrieved successfully',
       data: {
         monthly: monthlyResult,
@@ -120,10 +122,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         annual: annualResult
       }
     });
-
   } catch (error: any) {
-    await apiResponse(res, 500, { 
-      message: 'Error retrieving dashboard', 
+    apiResponse(res, 500, {
+      message: 'Error retrieving dashboard',
       error: error?.message || String(error)
     });
   }

@@ -1,4 +1,4 @@
-export async function validatePassword(password: string): Promise<{message: string, valid: boolean}> {
+export function validatePassword(password: string): {message: string, valid: boolean} {
   if (password.length < 8) {
     return { message: 'Password must be at least 8 characters long.', valid: false };
   }
