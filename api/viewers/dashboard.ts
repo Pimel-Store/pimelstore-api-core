@@ -29,20 +29,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const yearNumber = Number(year) || now.getFullYear();
     const lastMonth = (yearNumber === now.getFullYear()) ? now.getMonth() + 1 : 12;
 
+    const TZ = 'America/Sao_Paulo';
+
     // Agrupamento mensal
     const monthlyData = await saleCollection.aggregate([
       {
         $match: {
           _company_id: companyId,
           created_at: {
-            $gte: new Date(`${yearNumber}-01-01T00:00:00.000Z`),
-            $lte: new Date(`${yearNumber}-12-31T23:59:59.999Z`)
+            $gte: new Date(`${yearNumber}-01-01T00:00:00.000-03:00`),
+            $lte: new Date(`${yearNumber}-12-31T23:59:59.999-03:00`)
           }
         }
       },
       {
         $group: {
-          _id: { $month: '$created_at' },
+          _id: { $month: { date: '$created_at', timezone: TZ } },
           totalItems: { $sum: 1 },
           totalValue: { $sum: '$value' }
         }
@@ -64,17 +66,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         $match: {
           _company_id: companyId,
           created_at: {
-            $gte: new Date(`${yearNumber}-01-01T00:00:00.000Z`),
-            $lte: new Date(`${yearNumber}-12-31T23:59:59.999Z`)
+            $gte: new Date(`${yearNumber}-01-01T00:00:00.000-03:00`),
+            $lte: new Date(`${yearNumber}-12-31T23:59:59.999-03:00`)
           }
         }
       },
       {
         $group: {
           _id: {
-            year: { $year: '$created_at' },
-            month: { $month: '$created_at' },
-            day: { $dayOfMonth: '$created_at' }
+            year: { $year: { date: '$created_at', timezone: TZ } },
+            month: { $month: { date: '$created_at', timezone: TZ } },
+            day: { $dayOfMonth: { date: '$created_at', timezone: TZ } }
           },
           totalItems: { $sum: 1 },
           totalValue: { $sum: '$value' }
@@ -97,8 +99,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         $match: {
           _company_id: companyId,
           created_at: {
-            $gte: new Date(`${yearNumber}-01-01T00:00:00.000Z`),
-            $lte: new Date(`${yearNumber}-12-31T23:59:59.999Z`)
+            $gte: new Date(`${yearNumber}-01-01T00:00:00.000-03:00`),
+            $lte: new Date(`${yearNumber}-12-31T23:59:59.999-03:00`)
           }
         }
       },
