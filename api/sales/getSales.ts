@@ -37,6 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const sales = await saleCollection
       .find(filter)
+      .sort({ created_at: -1 })
       .skip(skip)
       .limit(limitNumber)
       .toArray();
