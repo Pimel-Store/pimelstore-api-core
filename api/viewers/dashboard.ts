@@ -30,21 +30,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const lastMonth = (yearNumber === now.getFullYear()) ? now.getMonth() + 1 : 12;
 
     const TZ = 'America/Sao_Paulo';
+    const yearStart = new Date(`${yearNumber}-01-01T00:00:00.000-03:00`);
+    const yearEnd   = new Date(`${yearNumber}-12-31T23:59:59.999-03:00`);
+
+    // Pipeline base: computa saleDate = sold_at se existir, senão created_at
+    const basePipeline = [
+      { $match: { _company_id: companyId } },
+      { $addFields: { saleDate: { $ifNull: ['$sold_at', '$created_at'] } } },
+      { $match: { $expr: { $and: [{ $gte: ['$saleDate', yearStart] }, { $lte: ['$saleDate', yearEnd] }] } } }
+    ];
 
     // Agrupamento mensal
     const monthlyData = await saleCollection.aggregate([
-      {
-        $match: {
-          _company_id: companyId,
-          created_at: {
-            $gte: new Date(`${yearNumber}-01-01T00:00:00.000-03:00`),
-            $lte: new Date(`${yearNumber}-12-31T23:59:59.999-03:00`)
-          }
-        }
-      },
+      ...basePipeline,
       {
         $group: {
-          _id: { $month: { date: '$created_at', timezone: TZ } },
+          _id: { $month: { date: '$saleDate', timezone: TZ } },
           totalItems: { $sum: 1 },
           totalValue: { $sum: '$value' }
         }
@@ -62,21 +63,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Agrupamento diário
     const dailyData = await saleCollection.aggregate([
-      {
-        $match: {
-          _company_id: companyId,
-          created_at: {
-            $gte: new Date(`${yearNumber}-01-01T00:00:00.000-03:00`),
-            $lte: new Date(`${yearNumber}-12-31T23:59:59.999-03:00`)
-          }
-        }
-      },
+      ...basePipeline,
       {
         $group: {
           _id: {
-            year: { $year: { date: '$created_at', timezone: TZ } },
-            month: { $month: { date: '$created_at', timezone: TZ } },
-            day: { $dayOfMonth: { date: '$created_at', timezone: TZ } }
+            year:  { $year:       { date: '$saleDate', timezone: TZ } },
+            month: { $month:      { date: '$saleDate', timezone: TZ } },
+            day:   { $dayOfMonth: { date: '$saleDate', timezone: TZ } }
           },
           totalItems: { $sum: 1 },
           totalValue: { $sum: '$value' }
@@ -93,17 +86,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       totalValue: d.totalValue
     }));
 
-    // Agrupamento anual (somando todos os valores)
+    // Agrupamento anual
     const annualData = await saleCollection.aggregate([
-      {
-        $match: {
-          _company_id: companyId,
-          created_at: {
-            $gte: new Date(`${yearNumber}-01-01T00:00:00.000-03:00`),
-            $lte: new Date(`${yearNumber}-12-31T23:59:59.999-03:00`)
-          }
-        }
-      },
+      ...basePipeline,
       {
         $group: {
           _id: null,
