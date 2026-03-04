@@ -15,6 +15,7 @@
     { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/deleteSales.ts", "methods": ["DELETE", "OPTIONS"]},
     { "src": "/sales", "dest": "api/sales/deleteSales.ts", "methods": ["DELETE"]},
     { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/getSalesById.ts", "methods": ["GET"]},
+    { "src": "/sales", "dest": "api/sales/updateSales.ts", "methods": ["PUT", "OPTIONS"]},
     { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/updateSales.ts", "methods": ["PUT"]},
     { "src": "/dashboard", "dest": "api/viewers/dashboard.ts", "methods": ["GET", "OPTIONS"]}
   ]

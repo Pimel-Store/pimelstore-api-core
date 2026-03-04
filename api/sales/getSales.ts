@@ -30,9 +30,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     let filter: any = { _company_id: companyId };
     if (initial_date || final_date) {
-      filter.created_at = {};
-      if (initial_date) filter.created_at.$gte = new Date(`${initial_date}T00:00:00.000-03:00`);
-      if (final_date) filter.created_at.$lte = new Date(`${final_date}T23:59:59.999-03:00`);
+      filter.sold_at = {};
+      if (initial_date) filter.sold_at.$gte = new Date(`${initial_date}T00:00:00.000-03:00`);
+      if (final_date) filter.sold_at.$lte = new Date(`${final_date}T23:59:59.999-03:00`);
     }
 
     const sales = await saleCollection
