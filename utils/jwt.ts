@@ -1,10 +1,10 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 
-const ONE_DAY = 86400;
+const ONE_WEEK = 86400 * 7;
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret_key';
 
 export function generateToken(payload: object): string {
-  const options: SignOptions = { expiresIn: ONE_DAY };
+  const options: SignOptions = { expiresIn: ONE_WEEK };
   return jwt.sign(payload, JWT_SECRET, options);
 }
 
