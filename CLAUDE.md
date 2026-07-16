@@ -16,6 +16,8 @@ Serverless API backend for PimelStore e-commerce platform, deployed on Vercel wi
 
 Each file in `api/` is an independent serverless function exported as a default `(req: VercelRequest, res: VercelResponse) => void`. Routes and HTTP methods are mapped in `vercel.json`.
 
+The Vercel Hobby plan caps a deployment at 12 serverless functions, so `sales` and `expenses` each consolidate their full CRUD into a single handler file that routes internally on `req.method` (and `req.query.id` for by-id GET/PUT/DELETE) — do not split them back into one-file-per-verb.
+
 ### Route Map
 
 | Method | Path | Handler |
@@ -23,16 +25,8 @@ Each file in `api/` is an independent serverless function exported as a default 
 | POST | /register | `api/register/register.ts` |
 | POST | /login | `api/auth/login.ts` |
 | GET | /token | `api/auth/token.ts` |
-| POST | /sales | `api/sales/createSale.ts` |
-| GET | /sales | `api/sales/getSales.ts` |
-| GET | /sales/:id | `api/sales/getSalesById.ts` |
-| PUT | /sales/:id | `api/sales/updateSales.ts` |
-| DELETE | /sales or /sales/:id | `api/sales/deleteSales.ts` |
-| POST | /expenses | `api/expenses/createExpense.ts` |
-| GET | /expenses | `api/expenses/getExpenses.ts` |
-| GET | /expenses/:id | `api/expenses/getExpensesById.ts` |
-| PUT | /expenses/:id | `api/expenses/updateExpenses.ts` |
-| DELETE | /expenses or /expenses/:id | `api/expenses/deleteExpenses.ts` |
+| POST, GET, PUT, DELETE | /sales, /sales/:id | `api/sales/sales.ts` |
+| POST, GET, PUT, DELETE | /expenses, /expenses/:id | `api/expenses/expenses.ts` |
 | GET | /dashboard | `api/viewers/dashboard.ts` |
 
 ### Key Utilities
