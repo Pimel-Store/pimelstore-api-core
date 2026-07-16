@@ -4,6 +4,7 @@
     { "src": "api/auth/*.ts", "use": "@vercel/node" },
     { "src": "api/register/*.ts", "use": "@vercel/node" },
     { "src": "api/sales/*.ts", "use": "@vercel/node" },
+    { "src": "api/expenses/*.ts", "use": "@vercel/node" },
     { "src": "api/viewers/*.ts", "use": "@vercel/node" }
   ],
   "routes": [
@@ -17,6 +18,13 @@
     { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/getSalesById.ts", "methods": ["GET"]},
     { "src": "/sales", "dest": "api/sales/updateSales.ts", "methods": ["PUT", "OPTIONS"]},
     { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/updateSales.ts", "methods": ["PUT"]},
+    { "src": "/expenses", "dest": "api/expenses/createExpense.ts", "methods": ["POST", "OPTIONS"]},
+    { "src": "/expenses", "dest": "api/expenses/getExpenses.ts", "methods": ["GET"]},
+    { "src": "/expenses/(?<id>[^/]+)", "dest": "api/expenses/deleteExpenses.ts", "methods": ["DELETE", "OPTIONS"]},
+    { "src": "/expenses", "dest": "api/expenses/deleteExpenses.ts", "methods": ["DELETE"]},
+    { "src": "/expenses/(?<id>[^/]+)", "dest": "api/expenses/getExpensesById.ts", "methods": ["GET"]},
+    { "src": "/expenses", "dest": "api/expenses/updateExpenses.ts", "methods": ["PUT", "OPTIONS"]},
+    { "src": "/expenses/(?<id>[^/]+)", "dest": "api/expenses/updateExpenses.ts", "methods": ["PUT"]},
     { "src": "/dashboard", "dest": "api/viewers/dashboard.ts", "methods": ["GET", "OPTIONS"]}
   ]
 }

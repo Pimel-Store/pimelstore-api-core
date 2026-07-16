@@ -28,6 +28,11 @@ Each file in `api/` is an independent serverless function exported as a default 
 | GET | /sales/:id | `api/sales/getSalesById.ts` |
 | PUT | /sales/:id | `api/sales/updateSales.ts` |
 | DELETE | /sales or /sales/:id | `api/sales/deleteSales.ts` |
+| POST | /expenses | `api/expenses/createExpense.ts` |
+| GET | /expenses | `api/expenses/getExpenses.ts` |
+| GET | /expenses/:id | `api/expenses/getExpensesById.ts` |
+| PUT | /expenses/:id | `api/expenses/updateExpenses.ts` |
+| DELETE | /expenses or /expenses/:id | `api/expenses/deleteExpenses.ts` |
 | GET | /dashboard | `api/viewers/dashboard.ts` |
 
 ### Key Utilities
@@ -44,7 +49,11 @@ Each file in `api/` is an independent serverless function exported as a default 
 
 **Sale.payment_method** accepted values: `credit_card | debit_card | pix | cash | other`
 
-**Sales GET** supports `page`, `limit`, and date range query params.
+**Expense.category** accepted values: `rent | payroll | supplier | tax | utilities | other`
+
+**Expense.payment_method** accepted values: `credit_card | debit_card | pix | cash | other`
+
+**Sales GET / Expenses GET** support `page`, `limit`, and date range query params.
 
 ### Environment Variables
 
