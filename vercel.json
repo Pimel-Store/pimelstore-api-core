@@ -5,6 +5,7 @@
     { "src": "api/register/*.ts", "use": "@vercel/node" },
     { "src": "api/sales/*.ts", "use": "@vercel/node" },
     { "src": "api/expenses/*.ts", "use": "@vercel/node" },
+    { "src": "api/categories/*.ts", "use": "@vercel/node" },
     { "src": "api/viewers/*.ts", "use": "@vercel/node" }
   ],
   "routes": [
@@ -15,6 +16,8 @@
     { "src": "/sales/(?<id>[^/]+)", "dest": "api/sales/sales.ts", "methods": ["GET", "PUT", "DELETE", "OPTIONS"]},
     { "src": "/expenses", "dest": "api/expenses/expenses.ts", "methods": ["POST", "GET", "PUT", "DELETE", "OPTIONS"]},
     { "src": "/expenses/(?<id>[^/]+)", "dest": "api/expenses/expenses.ts", "methods": ["GET", "PUT", "DELETE", "OPTIONS"]},
+    { "src": "/categories", "dest": "api/categories/categories.ts", "methods": ["POST", "GET", "PUT", "DELETE", "OPTIONS"]},
+    { "src": "/categories/(?<id>[^/]+)", "dest": "api/categories/categories.ts", "methods": ["PUT", "DELETE", "OPTIONS"]},
     { "src": "/dashboard", "dest": "api/viewers/dashboard.ts", "methods": ["GET", "OPTIONS"]}
   ]
 }

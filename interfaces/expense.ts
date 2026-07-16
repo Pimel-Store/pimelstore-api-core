@@ -1,7 +1,7 @@
 export interface Expense{
     _company_id: string;
     description: string;
-    category: 'rent' | 'payroll' | 'supplier' | 'tax' | 'utilities' | 'other';
+    category_id: string;
     payment_method: 'credit_card' | 'debit_card' | 'pix' | 'cash' | 'other';
     value: number;
     expensed_at: Date;

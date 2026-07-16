@@ -7,7 +7,6 @@ import { Pagination } from '../../interfaces/pagination';
 import { getCollection } from '../../utils/mongo';
 import { setCorsHeaders } from '../../utils/cors';
 
-const CATEGORIES = ['rent', 'payroll', 'supplier', 'tax', 'utilities', 'other'];
 const PAYMENT_METHODS = ['credit_card', 'debit_card', 'pix', 'cash', 'other'];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -51,29 +50,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function createExpense(req: VercelRequest, res: VercelResponse, companyId: string) {
-  const { description, category, payment_method, value, expensed_at } = req.body as Expense;
+  const { description, category_id, payment_method, value, expensed_at } = req.body as Expense;
 
-  if (!description || !category || !payment_method || value === undefined || value === null || !expensed_at) {
-    return apiResponse(res, 400, { message: 'Missing required fields - description, category, payment_method, value, or expensed_at' });
+  if (!description || !category_id || !payment_method || value === undefined || value === null || !expensed_at) {
+    return apiResponse(res, 400, { message: 'Missing required fields - description, category_id, payment_method, value, or expensed_at' });
   }
 
   if (typeof value !== 'number') {
     return apiResponse(res, 400, { message: 'Invalid value type. Value must be a number.' });
   }
 
-  if (!CATEGORIES.includes(category)) {
-    return apiResponse(res, 400, { message: `Invalid category. Allowed values are: ${CATEGORIES.join(', ')}` });
+  if (!ObjectId.isValid(category_id)) {
+    return apiResponse(res, 400, { message: 'Invalid category_id format' });
   }
 
   if (!PAYMENT_METHODS.includes(payment_method)) {
     return apiResponse(res, 400, { message: `Invalid payment_method. Allowed values are: ${PAYMENT_METHODS.join(', ')}` });
   }
 
+  const categoryCollection = await getCollection('categories');
+  const category = await categoryCollection.findOne({ _company_id: companyId, _id: new ObjectId(category_id) });
+  if (!category) {
+    return apiResponse(res, 400, { message: 'Category not found' });
+  }
+
   const expenseCollection = await getCollection('expenses');
   const expense = {
     _company_id: companyId,
     description: description,
-    category: category,
+    category_id: category_id,
     value: value,
     payment_method: payment_method,
     expensed_at: new Date(expensed_at),
@@ -152,11 +157,16 @@ async function updateExpense(req: VercelRequest, res: VercelResponse, companyId:
     return apiResponse(res, 400, { message: 'Invalid expense ID format' });
   }
 
-  const { description, category, payment_method, value, expensed_at } = req.body as Expense;
+  const { description, category_id, payment_method, value, expensed_at } = req.body as Expense;
 
-  if (category !== undefined) {
-    if (!CATEGORIES.includes(category)) {
-      return apiResponse(res, 400, { message: `Invalid category. Allowed values are: ${CATEGORIES.join(', ')}` });
+  if (category_id !== undefined) {
+    if (!ObjectId.isValid(category_id)) {
+      return apiResponse(res, 400, { message: 'Invalid category_id format' });
+    }
+    const categoryCollection = await getCollection('categories');
+    const category = await categoryCollection.findOne({ _company_id: companyId, _id: new ObjectId(category_id) });
+    if (!category) {
+      return apiResponse(res, 400, { message: 'Category not found' });
     }
   }
 
@@ -175,7 +185,7 @@ async function updateExpense(req: VercelRequest, res: VercelResponse, companyId:
   const updatedExpense = {
     ...expense,
     description: description || expense.description,
-    category: category || expense.category,
+    category_id: category_id || expense.category_id,
     payment_method: payment_method || expense.payment_method,
     value: value !== undefined && value !== null ? value : expense.value,
     expensed_at: expensed_at ? new Date(expensed_at) : expense.expensed_at,

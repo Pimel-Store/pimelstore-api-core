@@ -27,6 +27,7 @@ The Vercel Hobby plan caps a deployment at 12 serverless functions, so `sales` a
 | GET | /token | `api/auth/token.ts` |
 | POST, GET, PUT, DELETE | /sales, /sales/:id | `api/sales/sales.ts` |
 | POST, GET, PUT, DELETE | /expenses, /expenses/:id | `api/expenses/expenses.ts` |
+| POST, GET, PUT, DELETE | /categories, /categories/:id | `api/categories/categories.ts` |
 | GET | /dashboard | `api/viewers/dashboard.ts` |
 
 ### Key Utilities
@@ -43,7 +44,7 @@ The Vercel Hobby plan caps a deployment at 12 serverless functions, so `sales` a
 
 **Sale.payment_method** accepted values: `credit_card | debit_card | pix | cash | other`
 
-**Expense.category** accepted values: `rent | payroll | supplier | tax | utilities | other`
+**Category** is company-defined (`title` + hex `color`), created/managed via `/categories`. `Expense.category_id` references a `Category._id` — deleting a category does not cascade to existing expenses.
 
 **Expense.payment_method** accepted values: `credit_card | debit_card | pix | cash | other`
 
