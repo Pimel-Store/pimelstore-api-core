@@ -50,6 +50,8 @@ The Vercel Hobby plan caps a deployment at 12 serverless functions, so `sales` a
 
 **Sales GET / Expenses GET** support `page`, `limit`, and date range query params.
 
+**Dashboard** (`GET /dashboard?year=`) aggregates both `sales` and `expenses` per company for the given year. Each of `monthly`, `daily`, and `annual` carries the raw sales figures (`totalItems`, `totalValue`) alongside `totalExpenses` and a derived `netValue = totalValue - totalExpenses`; `annual` additionally has `totalExpenseItems`. The frontend uses these to toggle between "gross" (sales-only) and "net" (sales minus expenses) views without a second request.
+
 ### Environment Variables
 
 - `MONGO_URI` — MongoDB Atlas connection string

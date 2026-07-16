@@ -23,6 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const saleCollection = await getCollection('sales');
+    const expenseCollection = await getCollection('expenses');
     const { year } = req.query;
 
     const now = new Date();
@@ -40,7 +41,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { $match: { $expr: { $and: [{ $gte: ['$saleDate', yearStart] }, { $lte: ['$saleDate', yearEnd] }] } } }
     ];
 
-    // Agrupamento mensal
+    // Pipeline base de despesas: computa expenseDate = expensed_at se existir, senão created_at
+    const expenseBasePipeline = [
+      { $match: { _company_id: companyId } },
+      { $addFields: { expenseDate: { $ifNull: ['$expensed_at', '$created_at'] } } },
+      { $match: { $expr: { $and: [{ $gte: ['$expenseDate', yearStart] }, { $lte: ['$expenseDate', yearEnd] }] } } }
+    ];
+
+    // Agrupamento mensal - vendas
     const monthlyData = await saleCollection.aggregate([
       ...basePipeline,
       {
@@ -52,16 +60,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     ]).toArray();
 
+    // Agrupamento mensal - despesas
+    const monthlyExpenseData = await expenseCollection.aggregate([
+      ...expenseBasePipeline,
+      {
+        $group: {
+          _id: { $month: { date: '$expenseDate', timezone: TZ } },
+          totalItems: { $sum: 1 },
+          totalValue: { $sum: '$value' }
+        }
+      }
+    ]).toArray();
+
     // Monta resultado mensal
-    const monthlyResult: { [month: string]: { totalItems: number, totalValue: number, month: number, year: number } | null } = {};
+    const monthlyResult: { [month: string]: { totalItems: number, totalValue: number, totalExpenses: number, netValue: number, month: number, year: number } | null } = {};
     for (let m = 1; m <= lastMonth; m++) {
       const monthData = monthlyData.find(d => d._id === m);
-      monthlyResult[m] = monthData
-        ? { totalItems: monthData.totalItems, totalValue: monthData.totalValue, month: m, year: yearNumber }
+      const monthExpenseData = monthlyExpenseData.find(d => d._id === m);
+      const totalValue = monthData?.totalValue || 0;
+      const totalExpenses = monthExpenseData?.totalValue || 0;
+      monthlyResult[m] = (monthData || monthExpenseData)
+        ? {
+            totalItems: monthData?.totalItems || 0,
+            totalValue,
+            totalExpenses,
+            netValue: totalValue - totalExpenses,
+            month: m,
+            year: yearNumber
+          }
         : null;
     }
 
-    // Agrupamento diário
+    // Agrupamento diário - vendas
     const dailyData = await saleCollection.aggregate([
       ...basePipeline,
       {
@@ -78,15 +108,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
     ]).toArray();
 
-    const dailyResult = dailyData.map(d => ({
-      year: d._id.year,
-      month: d._id.month,
-      day: d._id.day,
-      totalItems: d.totalItems,
-      totalValue: d.totalValue
-    }));
+    // Agrupamento diário - despesas
+    const dailyExpenseData = await expenseCollection.aggregate([
+      ...expenseBasePipeline,
+      {
+        $group: {
+          _id: {
+            year:  { $year:       { date: '$expenseDate', timezone: TZ } },
+            month: { $month:      { date: '$expenseDate', timezone: TZ } },
+            day:   { $dayOfMonth: { date: '$expenseDate', timezone: TZ } }
+          },
+          totalValue: { $sum: '$value' }
+        }
+      }
+    ]).toArray();
 
-    // Agrupamento anual
+    const dailyResult = dailyData.map(d => {
+      const expenseForDay = dailyExpenseData.find(e =>
+        e._id.year === d._id.year && e._id.month === d._id.month && e._id.day === d._id.day
+      );
+      const totalExpenses = expenseForDay?.totalValue || 0;
+      return {
+        year: d._id.year,
+        month: d._id.month,
+        day: d._id.day,
+        totalItems: d.totalItems,
+        totalValue: d.totalValue,
+        totalExpenses,
+        netValue: d.totalValue - totalExpenses
+      };
+    });
+
+    // Agrupamento anual - vendas
     const annualData = await saleCollection.aggregate([
       ...basePipeline,
       {
@@ -99,7 +152,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     ]).toArray();
 
-    const annualResult = annualData[0] || { totalItems: 0, totalValue: 0 };
+    // Agrupamento anual - despesas
+    const annualExpenseData = await expenseCollection.aggregate([
+      ...expenseBasePipeline,
+      {
+        $group: {
+          _id: null,
+          totalItems: { $sum: 1 },
+          totalValue: { $sum: '$value' }
+        }
+      }
+    ]).toArray();
+
+    const annualSales = annualData[0] || { totalItems: 0, totalValue: 0 };
+    const annualExpenses = annualExpenseData[0] || { totalItems: 0, totalValue: 0 };
+
+    const annualResult = {
+      totalItems: annualSales.totalItems,
+      totalValue: annualSales.totalValue,
+      totalExpenseItems: annualExpenses.totalItems,
+      totalExpenses: annualExpenses.totalValue,
+      netValue: annualSales.totalValue - annualExpenses.totalValue
+    };
 
     apiResponse(res, 200, {
       message: 'Dashboard retrieved successfully',
